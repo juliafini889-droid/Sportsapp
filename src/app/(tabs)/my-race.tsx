@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
-import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, SectionList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AuthForm } from '../../components/AuthForm';
 import { EventCard } from '../../components/EventCard';
 import { EmptyState, Icon, ScreenTitle } from '../../components/ui';
 import { isUpcoming, sortByDate } from '../../lib/events';
@@ -10,7 +11,7 @@ import { colors, spacing } from '../../lib/theme';
 import type { Registration } from '../../lib/types';
 
 export default function MyRaceScreen() {
-  const { registrations, language, t, removeRegistration } = useApp();
+  const { user, registrations, language, t, removeRegistration } = useApp();
 
   const sections = useMemo(() => {
     const withDate = registrations.map((r) => ({ ...r, date: r.event.date }));
@@ -24,6 +25,16 @@ export default function MyRaceScreen() {
 
   const badge = (r: Registration) =>
     r.status === 'registered' ? t('myRace.statusRegistered') : t('myRace.statusSaved');
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.screen} edges={['top']}>
+        <ScrollView keyboardShouldPersistTaps="handled">
+          <AuthForm />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -39,7 +50,7 @@ export default function MyRaceScreen() {
           <View>
             <EventCard event={item.event} lang={language} badge={badge(item)} />
             <Pressable
-              onPress={() => removeRegistration(item.id)}
+              onPress={() => removeRegistration(item).catch(() => {})}
               accessibilityRole="button"
               style={styles.remove}
             >

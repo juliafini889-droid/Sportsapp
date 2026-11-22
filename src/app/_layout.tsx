@@ -18,6 +18,7 @@ function RootStack() {
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="event/[id]" options={{ title: '' }} />
+      <Stack.Screen name="login" options={{ title: '', presentation: 'modal' }} />
       <Stack.Screen name="event/new" options={{ title: t('newEvent.title'), presentation: 'modal' }} />
       <Stack.Screen name="competition/edit" options={{ title: t('comp.edit'), presentation: 'modal' }} />
     </Stack>

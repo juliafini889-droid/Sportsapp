@@ -1,16 +1,17 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AuthForm } from '../../components/AuthForm';
 import { Button, EmptyState, Icon, ScreenTitle, SPORT_ICONS } from '../../components/ui';
-import { sortByDate } from '../../lib/events';
+import { isUpcoming, sortByDate } from '../../lib/events';
 import { formatDate, sportLabel } from '../../lib/i18n';
 import { useApp } from '../../lib/store';
 import { colors, radius, spacing } from '../../lib/theme';
 
 export default function ResultsScreen() {
-  const { competitions, language, t } = useApp();
+  const { user, competitions, language, t } = useApp();
 
   const list = useMemo(() => sortByDate(competitions).reverse(), [competitions]);
 
@@ -22,6 +23,16 @@ export default function ResultsScreen() {
       best: places.length ? Math.min(...places) : undefined,
     };
   }, [competitions]);
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.screen} edges={['top']}>
+        <ScrollView keyboardShouldPersistTaps="handled">
+          <AuthForm />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   const header = (
     <View>
@@ -58,10 +69,14 @@ export default function ResultsScreen() {
                 {item.title}
               </Text>
               <Text style={styles.rowMeta} numberOfLines={1}>
-                {formatDate(language, item.date)} · {sportLabel(language, item.sport)}
+                {formatDate(language, item.date)} · {sportLabel(language, item.sport, item.sportName)}
                 {item.location ? ` · ${item.location}` : ''}
               </Text>
-              {item.result ? <Text style={styles.rowResult}>{item.result}</Text> : null}
+              {item.result ? (
+                <Text style={styles.rowResult}>{item.result}</Text>
+              ) : (
+                <Text style={styles.rowHint}>{isUpcoming(item.date) ? t('comp.upcoming') : t('comp.addResult')}</Text>
+              )}
             </View>
             {item.place ? (
               <View style={[styles.place, item.place <= 3 && styles.podium]}>
@@ -121,6 +136,7 @@ const styles = StyleSheet.create({
   },
   rowTitle: { fontSize: 16, fontWeight: '700', color: colors.ink },
   rowMeta: { fontSize: 13, color: colors.muted, marginTop: 2 },
+  rowHint: { fontSize: 13, color: colors.primaryDark, marginTop: 4, fontWeight: '700' },
   rowResult: { fontSize: 14, color: colors.ink, marginTop: 4, fontWeight: '600' },
   place: {
     minWidth: 44,

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { EventCard } from '../../components/EventCard';
@@ -12,7 +12,8 @@ import { colors, radius, spacing } from '../../lib/theme';
 import { SPORTS, type Sport } from '../../lib/types';
 
 export default function FeedScreen() {
-  const { events, language, t, registrationFor, externalLoadFailed } = useApp();
+  const { events, language, t, registrationFor, eventsError, refresh } = useApp();
+  const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState('');
   const [sport, setSport] = useState<Sport | null>(null);
   const [country, setCountry] = useState<string | null>(null);
@@ -22,7 +23,8 @@ export default function FeedScreen() {
   // Only offer the countries that actually have events.
   const countries = useMemo(() => {
     const map = new Map<string, string>();
-    for (const e of upcoming) if (e.countryCode) map.set(e.countryCode, countryName(language, e.countryCode, e.country));
+    for (const e of upcoming)
+      if (e.countryCode) map.set(e.countryCode, countryName(language, e.countryCode, e.country));
     return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1]));
   }, [upcoming, language]);
 
@@ -64,7 +66,7 @@ export default function FeedScreen() {
           <Chip key={code} label={name} active={country === code} onPress={() => setCountry(code)} />
         ))}
       </ScrollView>
-      {externalLoadFailed ? <Text style={styles.warning}>{t('feed.loadError')}</Text> : null}
+      {eventsError ? <Text style={styles.warning}>{t('feed.loadError')}</Text> : null}
       <View style={styles.addWrap}>
         <Button label={t('feed.addEvent')} icon="plus" variant="secondary" onPress={() => router.push('/event/new')} />
       </View>
@@ -79,6 +81,16 @@ export default function FeedScreen() {
         ListHeaderComponent={header}
         ListEmptyComponent={<EmptyState icon="magnify" text={t('feed.empty')} />}
         keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            tintColor={colors.primary}
+            onRefresh={() => {
+              setRefreshing(true);
+              refresh().finally(() => setRefreshing(false));
+            }}
+          />
+        }
         contentContainerStyle={{ paddingBottom: spacing.xl }}
         renderItem={({ item }) => {
           const reg = registrationFor(item.id);

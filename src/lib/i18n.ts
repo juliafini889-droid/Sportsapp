@@ -15,7 +15,7 @@ const en = {
   'feed.allCountries': 'All countries',
   'feed.empty': 'No events match your filters yet.',
   'feed.addEvent': 'Add your event',
-  'feed.loadError': 'Could not load Ticketmaster events. Showing app events only.',
+  'feed.loadError': 'Could not load events. Please check your internet connection.',
 
   'event.register': 'Sign up now',
   'event.registered': 'You are signed up 🎉',
@@ -70,7 +70,7 @@ const en = {
   'newEvent.city': 'City',
   'newEvent.country': 'Country code (e.g. CH, DE, US)',
   'newEvent.organizer': 'Organiser / club',
-  'newEvent.price': 'Price (optional)',
+  'newEvent.price': 'Price in CHF (0 = free)',
   'newEvent.description': 'Description',
   'newEvent.publish': 'Publish event',
   'newEvent.invalid': 'Please fill in name, date, city and a 2-letter country code.',
@@ -82,9 +82,29 @@ const en = {
   'profile.language': 'Language',
   'profile.save': 'Save profile',
   'profile.saved': 'Saved!',
-  'profile.localNote': 'For now your data is stored on this phone only. Accounts and sync come next.',
+  'profile.localNote': 'Your sign-ups and results are saved in your account, so they are safe on every phone.',
 
   'common.cancel': 'Cancel',
+  'auth.title': 'Welcome to Sportsapp',
+  'auth.subtitle': 'Sign in to sign up for events and track your results.',
+  'auth.signIn': 'Sign in',
+  'auth.signUp': 'Create account',
+  'auth.toSignUp': 'New here? Create an account',
+  'auth.toSignIn': 'Already have an account? Sign in',
+  'auth.name': 'Your name',
+  'auth.email': 'Email',
+  'auth.password': 'Password (at least 8 characters)',
+  'auth.required': 'Please sign in first.',
+  'auth.signOut': 'Sign out',
+  'auth.signedInAs': 'Signed in as {email}',
+  'register.firstName': 'First name',
+  'register.lastName': 'Last name',
+  'register.category': 'Category',
+  'register.loginFirst': 'Sign in to sign up',
+  'comp.upcoming': 'Upcoming',
+  'comp.addResult': 'Add your result',
+  'newEvent.categories': 'Categories, separated by commas (e.g. 5 km, 10 km)',
+  'common.error': 'Something went wrong. Please try again.',
 
   'sport.running': 'Running',
   'sport.cycling': 'Cycling',
@@ -112,7 +132,7 @@ const de: Record<TranslationKey, string> = {
   'feed.allCountries': 'Alle Länder',
   'feed.empty': 'Keine Events passen zu deinen Filtern.',
   'feed.addEvent': 'Event eintragen',
-  'feed.loadError': 'Ticketmaster-Events konnten nicht geladen werden. Es werden nur App-Events gezeigt.',
+  'feed.loadError': 'Events konnten nicht geladen werden. Bitte prüfe deine Internetverbindung.',
 
   'event.register': 'Jetzt anmelden',
   'event.registered': 'Du bist angemeldet 🎉',
@@ -168,7 +188,7 @@ const de: Record<TranslationKey, string> = {
   'newEvent.city': 'Stadt',
   'newEvent.country': 'Ländercode (z.B. CH, DE, US)',
   'newEvent.organizer': 'Veranstalter / Verein',
-  'newEvent.price': 'Preis (optional)',
+  'newEvent.price': 'Preis in CHF (0 = gratis)',
   'newEvent.description': 'Beschreibung',
   'newEvent.publish': 'Event veröffentlichen',
   'newEvent.invalid': 'Bitte Name, Datum, Stadt und einen 2-stelligen Ländercode ausfüllen.',
@@ -180,10 +200,29 @@ const de: Record<TranslationKey, string> = {
   'profile.language': 'Sprache',
   'profile.save': 'Profil speichern',
   'profile.saved': 'Gespeichert!',
-  'profile.localNote':
-    'Im Moment sind deine Daten nur auf diesem Handy gespeichert. Konten und Synchronisierung kommen als Nächstes.',
+  'profile.localNote': 'Deine Anmeldungen und Resultate sind in deinem Konto gespeichert, also auf jedem Handy sicher.',
 
   'common.cancel': 'Abbrechen',
+  'auth.title': 'Willkommen bei Sportsapp',
+  'auth.subtitle': 'Melde dich an, um dich für Events anzumelden und deine Resultate zu tracken.',
+  'auth.signIn': 'Einloggen',
+  'auth.signUp': 'Konto erstellen',
+  'auth.toSignUp': 'Neu hier? Konto erstellen',
+  'auth.toSignIn': 'Schon ein Konto? Einloggen',
+  'auth.name': 'Dein Name',
+  'auth.email': 'E-Mail',
+  'auth.password': 'Passwort (mindestens 8 Zeichen)',
+  'auth.required': 'Bitte zuerst einloggen.',
+  'auth.signOut': 'Ausloggen',
+  'auth.signedInAs': 'Eingeloggt als {email}',
+  'register.firstName': 'Vorname',
+  'register.lastName': 'Nachname',
+  'register.category': 'Kategorie',
+  'register.loginFirst': 'Zum Anmelden einloggen',
+  'comp.upcoming': 'Kommend',
+  'comp.addResult': 'Resultat eintragen',
+  'newEvent.categories': 'Kategorien, mit Komma getrennt (z.B. 5 km, 10 km)',
+  'common.error': 'Da ist etwas schiefgelaufen. Bitte versuch es nochmal.',
 
   'sport.running': 'Laufen',
   'sport.cycling': 'Radsport',
@@ -212,11 +251,7 @@ export function deviceCountry(): string | undefined {
   return getLocales()[0]?.regionCode ?? undefined;
 }
 
-export function translate(
-  lang: Language,
-  key: TranslationKey,
-  params?: Record<string, string | number>,
-): string {
+export function translate(lang: Language, key: TranslationKey, params?: Record<string, string | number>): string {
   let text = dictionaries[lang][key] ?? en[key];
   if (params) {
     for (const [name, value] of Object.entries(params)) {
@@ -226,7 +261,8 @@ export function translate(
   return text;
 }
 
-export function sportLabel(lang: Language, sport: Sport): string {
+export function sportLabel(lang: Language, sport: Sport, sportName?: string): string {
+  if (sport === 'other' && sportName) return sportName;
   return translate(lang, `sport.${sport}` as TranslationKey);
 }
 

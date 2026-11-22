@@ -28,7 +28,7 @@ export function EventCard({
         )}
         <View style={styles.body}>
           <View style={styles.row}>
-            <Text style={styles.sport}>{sportLabel(lang, event.sport)}</Text>
+            <Text style={styles.sport}>{sportLabel(lang, event.sport, event.sportName)}</Text>
             {badge ? <Text style={styles.badge}>{badge}</Text> : null}
           </View>
           <Text style={styles.title} numberOfLines={2}>
