@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ComponentProps, ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View, type ColorValue, type TextInputProps } from 'react-native';
 
@@ -21,7 +21,50 @@ export const SPORT_ICONS: Record<Sport, IconName> = {
   other: 'trophy-outline',
 };
 
+/**
+ * iOS-style glyphs. Callers keep using the familiar names; where Ionicons (drawn to match
+ * Apple's SF Symbols) has an equivalent we show that, otherwise the original icon.
+ */
+const IOS_GLYPHS: Partial<Record<IconName, ComponentProps<typeof Ionicons>['name']>> = {
+  'compass-outline': 'compass-outline',
+  compass: 'compass',
+  'ticket-confirmation-outline': 'ticket-outline',
+  'ticket-confirmation': 'ticket',
+  podium: 'podium-outline',
+  'podium-gold': 'podium',
+  'account-circle-outline': 'person-circle-outline',
+  'account-circle': 'person-circle',
+  plus: 'add',
+  magnify: 'search',
+  'map-marker-outline': 'location-outline',
+  'calendar-blank-outline': 'calendar-outline',
+  'check-circle': 'checkmark-circle',
+  check: 'checkmark',
+  'chevron-right': 'chevron-forward',
+  'close-circle': 'close-circle',
+  'wifi-off': 'cloud-offline-outline',
+  'trash-can-outline': 'trash-outline',
+  'open-in-new': 'open-outline',
+  'lightning-bolt': 'flash',
+  'flag-checkered': 'flag',
+  'bookmark-outline': 'bookmark-outline',
+  'account-group-outline': 'people-outline',
+  cash: 'cash-outline',
+  medal: 'medal',
+  'medal-outline': 'medal-outline',
+  'check-decagram': 'checkmark-done-circle',
+  'trophy-outline': 'trophy-outline',
+  'bike-fast': 'bicycle',
+  swim: 'water',
+  soccer: 'football',
+  tennis: 'tennisball',
+  basketball: 'basketball',
+  ski: 'snow',
+};
+
 export function Icon({ name, size = 18, color = colors.ink }: { name: IconName; size?: number; color?: ColorValue }) {
+  const ios = IOS_GLYPHS[name];
+  if (ios) return <Ionicons name={ios} size={size} color={color as string} />;
   return <MaterialCommunityIcons name={name} size={size} color={color as string} />;
 }
 
@@ -190,32 +233,28 @@ const styles = StyleSheet.create({
     minHeight: 36,
     paddingHorizontal: 14,
     borderRadius: radius.pill,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.fill,
     marginRight: spacing.sm,
   },
-  chipPressed: { backgroundColor: colors.raised },
-  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { ...type.subhead, color: colors.ink, fontWeight: '600' },
-  chipTextActive: { color: colors.onPrimary, fontWeight: '700' },
+  chipPressed: { opacity: 0.7 },
+  chipActive: { backgroundColor: colors.primary },
+  chipText: { ...type.subhead, color: colors.ink, fontWeight: '500' },
+  chipTextActive: { color: colors.onPrimary, fontWeight: '600' },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-    minHeight: 52,
+    minHeight: 50,
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.md,
+    borderRadius: 14,
   },
   buttonText: { ...type.headline },
   field: { marginBottom: spacing.md },
   label: { ...type.footnote, fontWeight: '600', color: colors.muted, marginBottom: 6 },
   input: {
     minHeight: HIT,
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.fill,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: 12,
@@ -226,8 +265,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: radius.lg,
     padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   empty: { alignItems: 'center', paddingVertical: spacing.xxl, paddingHorizontal: spacing.xl, gap: spacing.md },
   emptyIcon: {
@@ -248,6 +285,6 @@ const styles = StyleSheet.create({
   },
   dateBlockLg: { width: 68, paddingVertical: 10 },
   dateWeekday: { ...type.caption, color: colors.primaryDark },
-  dateDay: { fontSize: 24, lineHeight: 28, fontWeight: '900', color: colors.ink, fontVariant: ['tabular-nums'] },
+  dateDay: { fontSize: 24, lineHeight: 28, fontWeight: '700', color: colors.ink, fontVariant: ['tabular-nums'] },
   dateMonth: { ...type.caption, color: colors.muted },
 });

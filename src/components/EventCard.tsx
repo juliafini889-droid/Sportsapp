@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Image, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { countdownLabel, countryName, daysUntil, formatDate, sportLabel, type Language } from '../lib/i18n';
 import { colors, radius, spacing, type } from '../lib/theme';
@@ -65,41 +65,76 @@ export function Countdown({ lang, iso, onImage }: { lang: Language; iso: string;
   );
 }
 
-/** Ticket-style list row: date stub, title, place, price. Used in the feed list and My Race. */
-export function EventCard({ event, lang, badge }: { event: SportEvent; lang: Language; badge?: string }) {
+/**
+ * Ticket-style list row in an iOS inset grouped list: date stub, title, place, price.
+ * Pass first/last so the group gets rounded ends and hairline separators in between.
+ */
+export function EventCard({
+  event,
+  lang,
+  badge,
+  first = true,
+  last = true,
+  onRemove,
+  removeLabel,
+}: {
+  event: SportEvent;
+  lang: Language;
+  badge?: string;
+  first?: boolean;
+  last?: boolean;
+  /** Shows a trash button instead of the chevron (My Race). */
+  onRemove?: () => void;
+  removeLabel?: string;
+}) {
   return (
-    <PressableScale
-      onPress={() => open(event)}
-      accessibilityRole="link"
-      accessibilityLabel={a11yLabel(lang, event, badge)}
-      style={styles.row}
-    >
-      <DateBlock lang={lang} iso={event.date} />
-      <View style={styles.rowBody}>
-        <Text style={styles.rowSport}>{sportLabel(lang, event.sport, event.sportName)}</Text>
-        <Text style={styles.rowTitle} numberOfLines={2}>
-          {event.title}
-        </Text>
-        <View style={styles.meta}>
-          <Icon name="map-marker-outline" size={14} color={colors.muted} />
-          <Text style={styles.metaText} numberOfLines={1}>
-            {place(lang, event)}
+    <View style={[styles.group, first && styles.groupFirst, last && styles.groupLast]}>
+      <PressableScale
+        onPress={() => open(event)}
+        accessibilityRole="link"
+        accessibilityLabel={a11yLabel(lang, event, badge)}
+        scaleTo={0.985}
+        style={[styles.row, onRemove ? { paddingRight: 52 } : null]}
+      >
+        <DateBlock lang={lang} iso={event.date} />
+        <View style={styles.rowBody}>
+          <Text style={styles.rowSport}>{sportLabel(lang, event.sport, event.sportName)}</Text>
+          <Text style={styles.rowTitle} numberOfLines={2}>
+            {event.title}
           </Text>
-        </View>
-        {badge || event.price ? (
-          <View style={styles.rowFoot}>
-            {event.price ? <Text style={styles.price}>{event.price}</Text> : <View />}
-            {badge ? (
-              <View style={styles.badge}>
-                <Icon name="check" size={12} color={colors.success} />
-                <Text style={styles.badgeText}>{badge}</Text>
-              </View>
-            ) : null}
+          <View style={styles.meta}>
+            <Icon name="map-marker-outline" size={14} color={colors.muted} />
+            <Text style={styles.metaText} numberOfLines={1}>
+              {place(lang, event)}
+            </Text>
           </View>
-        ) : null}
-      </View>
-      <Icon name="chevron-right" size={22} color={colors.muted} />
-    </PressableScale>
+          {badge || event.price ? (
+            <View style={styles.rowFoot}>
+              {event.price ? <Text style={styles.price}>{event.price}</Text> : <View />}
+              {badge ? (
+                <View style={styles.badge}>
+                  <Icon name="check" size={12} color={colors.success} />
+                  <Text style={styles.badgeText}>{badge}</Text>
+                </View>
+              ) : null}
+            </View>
+          ) : null}
+        </View>
+        {onRemove ? null : <Icon name="chevron-right" size={18} color={colors.muted} />}
+      </PressableScale>
+      {onRemove ? (
+        <Pressable
+          onPress={onRemove}
+          accessibilityRole="button"
+          accessibilityLabel={removeLabel ? `${removeLabel}: ${event.title}` : undefined}
+          hitSlop={8}
+          style={({ pressed }) => [styles.remove, pressed && { opacity: 0.5 }]}
+        >
+          <Icon name="trash-can-outline" size={20} color={colors.danger} />
+        </Pressable>
+      ) : null}
+      {last ? null : <View style={styles.separator} />}
+    </View>
   );
 }
 
@@ -174,19 +209,20 @@ const styles = StyleSheet.create({
   artFallback: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   artIcon: { position: 'absolute', right: -30, bottom: -40, transform: [{ rotate: '-12deg' }] },
 
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.sm,
+  group: { backgroundColor: colors.card, marginHorizontal: spacing.lg, justifyContent: 'center' },
+  groupFirst: { borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg },
+  groupLast: { borderBottomLeftRadius: radius.lg, borderBottomRightRadius: radius.lg, marginBottom: spacing.md },
+  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, paddingRight: spacing.md },
+  separator: {
+    position: 'absolute',
+    bottom: 0,
+    left: spacing.md + 56 + spacing.md,
+    right: 0,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.separator,
   },
-  rowBody: { flex: 1, gap: 3 },
+  remove: { position: 'absolute', right: spacing.sm, top: 0, bottom: 0, width: 44, alignItems: 'center', justifyContent: 'center' },
+  rowBody: { flex: 1, gap: 3, paddingRight: 4 },
   rowSport: { ...type.caption, color: colors.electric },
   rowTitle: { ...type.headline, color: colors.ink },
   rowFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
@@ -246,8 +282,6 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
     backgroundColor: colors.card,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     overflow: 'hidden',
   },
   railArt: { height: 104 },

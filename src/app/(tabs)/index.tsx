@@ -12,6 +12,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EventCard, FeaturedCard, RailCard } from '../../components/EventCard';
@@ -94,12 +95,12 @@ export default function FeedScreen() {
               accessibilityLabel={t('feed.addEvent')}
               style={styles.roundButton}
             >
-              <Icon name="plus" size={24} color={colors.onPrimary} />
+              <Icon name="plus" size={30} color={colors.primary} />
             </PressableScale>
           }
         />
         <View style={styles.search}>
-          <Icon name="magnify" size={20} color={colors.muted} />
+          <Icon name="magnify" size={17} color={colors.muted} />
           <TextInput
             value={query}
             onChangeText={setQuery}
@@ -226,16 +227,20 @@ export default function FeedScreen() {
               ? t('myRace.statusRegistered')
               : t('myRace.statusSaved')
             : undefined;
-          const card = <EventCard event={item} lang={language} badge={badge} />;
+          const card = (
+            <EventCard event={item} lang={language} badge={badge} first={index === 0} last={index === filtered.length - 1} />
+          );
           // Only the first screenful arrives with the staggered start; later rows just appear.
           return index < 6 ? <Enter index={filtering ? 0 : index + 4}>{card}</Enter> : card;
         }}
       />
       <Animated.View
         pointerEvents="none"
-        style={[styles.bar, { paddingTop: insets.top, height: insets.top + 44, opacity: barOpacity }]}
+        style={[styles.bar, { height: insets.top + 44, opacity: barOpacity }]}
       >
-        <Text style={styles.barTitle}>{t('tab.feed')}</Text>
+        <BlurView intensity={60} tint="dark" style={[StyleSheet.absoluteFill, { paddingTop: insets.top }, styles.barInner]}>
+          <Text style={styles.barTitle}>{t('tab.feed')}</Text>
+        </BlurView>
       </Animated.View>
     </SafeAreaView>
   );
@@ -337,23 +342,21 @@ const styles = StyleSheet.create({
     width: HIT,
     height: HIT,
     borderRadius: HIT / 2,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   search: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: 6,
     marginHorizontal: GUTTER,
-    paddingHorizontal: spacing.md,
-    minHeight: HIT,
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    paddingHorizontal: 8,
+    height: 36,
+    backgroundColor: colors.fill,
+    borderRadius: radius.sm,
   },
-  searchInput: { flex: 1, paddingVertical: 11, fontSize: 17, color: colors.ink },
+  searchInput: { flex: 1, height: 36, fontSize: 17, color: colors.ink, letterSpacing: -0.41 },
   sportRail: { paddingHorizontal: GUTTER, paddingTop: spacing.lg, gap: spacing.md },
   tile: { alignItems: 'center', width: 68, gap: 6 },
   tileCircle: {
@@ -361,12 +364,10 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tileCircleActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  tileCircleActive: { backgroundColor: colors.primary },
   tileLabel: { ...type.caption, color: colors.muted },
   chips: { paddingHorizontal: GUTTER, paddingBottom: spacing.md },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: spacing.md },
@@ -387,9 +388,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     padding: spacing.xl,
     borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderStyle: 'dashed',
+    backgroundColor: colors.card,
     alignItems: 'center',
     gap: spacing.sm,
   },
@@ -400,11 +399,11 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(7,20,48,0.94)',
+    backgroundColor: 'rgba(7,20,48,0.72)',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderBottomColor: colors.separator,
+    overflow: 'hidden',
   },
+  barInner: { alignItems: 'center', justifyContent: 'center' },
   barTitle: { ...type.headline, color: colors.ink },
 });

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Pressable, ScrollView, SectionList, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, SectionList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthForm } from '../../components/AuthForm';
@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { EventCard } from '../../components/EventCard';
 import { Enter, PressableScale, PulseDot } from '../../components/motion';
-import { Button, EmptyState, Icon, ScreenTitle } from '../../components/ui';
+import { Button, EmptyState, ScreenTitle } from '../../components/ui';
 import { isUpcoming, sortByDate } from '../../lib/events';
 import { countdownLabel, daysUntil, formatDate } from '../../lib/i18n';
 import { useApp } from '../../lib/store';
@@ -64,19 +64,16 @@ export default function MyRaceScreen() {
         renderSectionHeader={({ section }) => <Text style={styles.section}>{section.title}</Text>}
         stickySectionHeadersEnabled={false}
         contentContainerStyle={{ paddingBottom: spacing.xl }}
-        renderItem={({ item }) => (
-          <View>
-            <EventCard event={item.event} lang={language} badge={badge(item)} />
-            <Pressable
-              onPress={() => removeRegistration(item).catch(() => {})}
-              accessibilityRole="button"
-              accessibilityLabel={`${t('myRace.cancel')}: ${item.event.title}`}
-              style={styles.remove}
-            >
-              <Icon name="trash-can-outline" size={16} color={colors.muted} />
-              <Text style={styles.removeText}>{t('myRace.cancel')}</Text>
-            </Pressable>
-          </View>
+        renderItem={({ item, index, section }) => (
+          <EventCard
+            event={item.event}
+            lang={language}
+            badge={badge(item)}
+            first={index === 0}
+            last={index === section.data.length - 1}
+            onRemove={() => removeRegistration(item).catch(() => {})}
+            removeLabel={t('myRace.cancel')}
+          />
         )}
       />
     </SafeAreaView>
@@ -121,9 +118,8 @@ const styles = StyleSheet.create({
   bibDays: {
     fontSize: 72,
     lineHeight: 76,
-    fontWeight: '900',
-    fontStyle: 'italic',
-    letterSpacing: -2,
+    fontWeight: '700',
+    letterSpacing: -1,
     color: colors.onPrimary,
     fontVariant: ['tabular-nums'],
   },
@@ -138,15 +134,4 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     marginTop: spacing.sm,
   },
-  remove: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    alignSelf: 'flex-end',
-    minHeight: HIT,
-    marginRight: spacing.lg,
-    marginTop: -spacing.sm,
-    paddingHorizontal: spacing.sm,
-  },
-  removeText: { ...type.footnote, color: colors.muted },
 });

@@ -1,5 +1,6 @@
 import Tabs from 'expo-router/js-tabs';
-import { Platform, type ColorValue } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Platform, StyleSheet, type ColorValue } from 'react-native';
 
 import { haptic } from '../../components/motion';
 import { Icon, type IconName } from '../../components/ui';
@@ -23,9 +24,10 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
+        tabBarBackground: () => <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />,
         tabBarStyle: {
-          backgroundColor: 'rgba(7,20,48,0.97)',
-          borderTopColor: colors.border,
+          backgroundColor: 'rgba(7,20,48,0.8)',
+          borderTopColor: colors.separator,
           ...(Platform.OS === 'web' ? { height: 64, paddingBottom: 8 } : null),
         },
         sceneStyle: { backgroundColor: colors.background },

@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState, type ReactNode } from 'react';
 import { Animated, KeyboardAvoidingView, Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Countdown, EventArt } from '../../components/EventCard';
@@ -228,10 +229,15 @@ export default function EventDetailScreen() {
             opacity: scrollY.interpolate({ inputRange: [HERO - 160, HERO - 90], outputRange: [0, 1], extrapolate: 'clamp' }),
           },
         ]}
-      />
+      >
+        <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+      </Animated.View>
 
       {action ? (
-        <View style={[styles.actionBar, { paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>{action}</View>
+        <View style={[styles.actionBar, { paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
+          <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+          {action}
+        </View>
       ) : null}
     </KeyboardAvoidingView>
   );
@@ -321,9 +327,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
-    backgroundColor: 'rgba(7,20,48,0.96)',
+    overflow: 'hidden',
+    backgroundColor: 'rgba(7,20,48,0.72)',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
+    borderTopColor: colors.separator,
   },
   actionRow: { gap: spacing.sm },
   topBar: {
@@ -331,8 +338,9 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(7,20,48,0.96)',
+    overflow: 'hidden',
+    backgroundColor: 'rgba(7,20,48,0.72)',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.separator,
   },
 });
