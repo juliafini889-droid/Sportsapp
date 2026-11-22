@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useApp } from '../lib/store';
-import { colors, spacing } from '../lib/theme';
+import { colors, spacing, type } from '../lib/theme';
 import { Button, Card, Field, Icon } from './ui';
 
 /** Sign-in / create-account form. Shown wherever an action needs an account. */
@@ -89,8 +89,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: spacing.lg,
   },
-  title: { fontSize: 24, fontWeight: '800', color: colors.ink, textAlign: 'center' },
-  subtitle: { fontSize: 15, color: colors.muted, textAlign: 'center', marginBottom: spacing.sm },
+  title: { ...type.title1, color: colors.ink, textAlign: 'center' },
+  subtitle: { ...type.subhead, color: colors.muted, textAlign: 'center', marginBottom: spacing.sm },
   error: { color: colors.danger, marginBottom: spacing.md },
   switch: { alignSelf: 'center', padding: spacing.sm },
   switchText: { color: colors.primaryDark, fontWeight: '700' },

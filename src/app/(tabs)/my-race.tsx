@@ -3,11 +3,16 @@ import { Pressable, ScrollView, SectionList, StyleSheet, Text, View } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthForm } from '../../components/AuthForm';
+import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+
 import { EventCard } from '../../components/EventCard';
-import { EmptyState, Icon, ScreenTitle } from '../../components/ui';
+import { Enter, PressableScale, PulseDot } from '../../components/motion';
+import { Button, EmptyState, Icon, ScreenTitle } from '../../components/ui';
 import { isUpcoming, sortByDate } from '../../lib/events';
+import { countdownLabel, daysUntil, formatDate } from '../../lib/i18n';
 import { useApp } from '../../lib/store';
-import { colors, spacing } from '../../lib/theme';
+import { colors, HIT, radius, spacing, type } from '../../lib/theme';
 import type { Registration } from '../../lib/types';
 
 export default function MyRaceScreen() {
@@ -22,6 +27,8 @@ export default function MyRaceScreen() {
       { title: t('myRace.past'), data: past },
     ].filter((s) => s.data.length > 0);
   }, [registrations, t]);
+
+  const next = sections.find((s) => s.title === t('myRace.upcoming'))?.data[0];
 
   const badge = (r: Registration) =>
     r.status === 'registered' ? t('myRace.statusRegistered') : t('myRace.statusSaved');
@@ -41,8 +48,19 @@ export default function MyRaceScreen() {
       <SectionList
         sections={sections}
         keyExtractor={(r) => r.id}
-        ListHeaderComponent={<ScreenTitle title={t('myRace.title')} subtitle={t('myRace.subtitle')} />}
-        ListEmptyComponent={<EmptyState icon="flag-checkered" text={t('myRace.empty')} />}
+        ListHeaderComponent={
+          <Enter>
+            <ScreenTitle title={t('myRace.title')} subtitle={t('myRace.subtitle')} />
+            {next ? <NextStart registration={next} /> : null}
+          </Enter>
+        }
+        ListEmptyComponent={
+          <EmptyState
+            icon="ticket-confirmation-outline"
+            text={t('myRace.empty')}
+            action={<Button label={t('tab.feed')} icon="compass-outline" onPress={() => router.push('/')} />}
+          />
+        }
         renderSectionHeader={({ section }) => <Text style={styles.section}>{section.title}</Text>}
         stickySectionHeadersEnabled={false}
         contentContainerStyle={{ paddingBottom: spacing.xl }}
@@ -52,6 +70,7 @@ export default function MyRaceScreen() {
             <Pressable
               onPress={() => removeRegistration(item).catch(() => {})}
               accessibilityRole="button"
+              accessibilityLabel={`${t('myRace.cancel')}: ${item.event.title}`}
               style={styles.remove}
             >
               <Icon name="trash-can-outline" size={16} color={colors.muted} />
@@ -64,13 +83,57 @@ export default function MyRaceScreen() {
   );
 }
 
+/** The race bib: your next start, big and counting down. */
+function NextStart({ registration }: { registration: Registration }) {
+  const { language, t } = useApp();
+  const days = daysUntil(registration.event.date);
+  return (
+    <PressableScale
+      onPress={() => router.push({ pathname: '/event/[id]', params: { id: registration.eventId } })}
+      accessibilityRole="link"
+      accessibilityLabel={`${t('myRace.next')}: ${registration.event.title}, ${countdownLabel(language, registration.event.date)}`}
+      style={styles.bibWrap}
+    >
+      <LinearGradient colors={[colors.primary, '#FF3D6E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.bib}>
+        <View style={styles.bibTop}>
+          <PulseDot color={colors.onPrimary} />
+          <Text style={styles.bibLabel}>{t('myRace.next')}</Text>
+        </View>
+        <Text style={styles.bibDays}>{days <= 1 ? countdownLabel(language, registration.event.date) : days}</Text>
+        {days > 1 ? <Text style={styles.bibUnit}>{t('when.daysToGo')}</Text> : null}
+        <Text style={styles.bibTitle} numberOfLines={2}>
+          {registration.event.title}
+        </Text>
+        <Text style={styles.bibMeta}>
+          {formatDate(language, registration.event.date)}
+          {registration.category ? `   ${registration.category}` : ''}
+        </Text>
+      </LinearGradient>
+    </PressableScale>
+  );
+}
+
 const styles = StyleSheet.create({
+  bibWrap: { marginHorizontal: spacing.lg, marginBottom: spacing.lg },
+  bib: { borderRadius: radius.xl, padding: spacing.xl, gap: 2 },
+  bibTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
+  bibLabel: { ...type.footnote, fontWeight: '700', color: colors.onPrimary },
+  bibDays: {
+    fontSize: 72,
+    lineHeight: 76,
+    fontWeight: '900',
+    fontStyle: 'italic',
+    letterSpacing: -2,
+    color: colors.onPrimary,
+    fontVariant: ['tabular-nums'],
+  },
+  bibUnit: { ...type.headline, color: colors.onPrimary, marginTop: -4 },
+  bibTitle: { ...type.title3, color: colors.onPrimary, marginTop: spacing.md },
+  bibMeta: { ...type.subhead, color: colors.onPrimary, opacity: 0.8 },
   screen: { flex: 1, backgroundColor: colors.background },
   section: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: colors.muted,
-    textTransform: 'uppercase',
+    ...type.title2,
+    color: colors.ink,
     marginHorizontal: spacing.lg,
     marginBottom: spacing.sm,
     marginTop: spacing.sm,
@@ -80,10 +143,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     alignSelf: 'flex-end',
+    minHeight: HIT,
     marginRight: spacing.lg,
     marginTop: -spacing.sm,
-    marginBottom: spacing.md,
-    padding: spacing.xs,
+    paddingHorizontal: spacing.sm,
   },
-  removeText: { color: colors.muted, fontSize: 13 },
+  removeText: { ...type.footnote, color: colors.muted },
 });

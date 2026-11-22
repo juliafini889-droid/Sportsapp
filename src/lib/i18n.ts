@@ -10,12 +10,26 @@ const en = {
 
   'feed.title': 'Sport events worldwide',
   'feed.subtitle': 'Find your next race, match or tournament',
-  'feed.search': 'Search events, cities, organisers…',
+  'feed.search': 'Search events or cities',
   'feed.allSports': 'All sports',
   'feed.allCountries': 'All countries',
   'feed.empty': 'No events match your filters yet.',
   'feed.addEvent': 'Add your event',
   'feed.loadError': 'Could not load events. Please check your internet connection.',
+  'feed.featured': 'Featured races',
+  'feed.soon': 'Coming up soon',
+  'feed.all': 'All events',
+  'feed.results': '{count} events',
+  'feed.organiseTitle': 'Running your own race?',
+  'feed.organiseText': 'Publish it here and athletes sign up in the app.',
+  'feed.clearFilters': 'Clear filters',
+  'when.today': 'Today',
+  'when.tomorrow': 'Tomorrow',
+  'when.inDays': 'In {count} days',
+  'when.daysToGo': 'days to go',
+  'myRace.next': 'Your next start',
+  'event.details': 'Details',
+  'event.about': 'About this event',
 
   'event.register': 'Sign up now',
   'event.registered': 'You are signed up 🎉',
@@ -127,12 +141,26 @@ const de: Record<TranslationKey, string> = {
 
   'feed.title': 'Sportevents weltweit',
   'feed.subtitle': 'Finde dein nächstes Rennen, Spiel oder Turnier',
-  'feed.search': 'Events, Städte, Veranstalter suchen…',
+  'feed.search': 'Events oder Orte suchen',
   'feed.allSports': 'Alle Sportarten',
   'feed.allCountries': 'Alle Länder',
   'feed.empty': 'Keine Events passen zu deinen Filtern.',
   'feed.addEvent': 'Event eintragen',
   'feed.loadError': 'Events konnten nicht geladen werden. Bitte prüfe deine Internetverbindung.',
+  'feed.featured': 'Top Rennen',
+  'feed.soon': 'Bald am Start',
+  'feed.all': 'Alle Events',
+  'feed.results': '{count} Events',
+  'feed.organiseTitle': 'Du organisierst ein Rennen?',
+  'feed.organiseText': 'Trag es hier ein und Sportler melden sich direkt in der App an.',
+  'feed.clearFilters': 'Filter zurücksetzen',
+  'when.today': 'Heute',
+  'when.tomorrow': 'Morgen',
+  'when.inDays': 'In {count} Tagen',
+  'when.daysToGo': 'Tage bis zum Start',
+  'myRace.next': 'Dein nächster Start',
+  'event.details': 'Details',
+  'event.about': 'Über dieses Event',
 
   'event.register': 'Jetzt anmelden',
   'event.registered': 'Du bist angemeldet 🎉',
@@ -285,4 +313,37 @@ export function formatDate(lang: Language, iso: string): string {
     month: 'short',
     year: 'numeric',
   });
+}
+
+function toDate(iso: string): Date {
+  return new Date(iso.length === 10 ? `${iso}T12:00:00` : iso);
+}
+
+/** Parts for a ticket-style date block, e.g. { weekday: "Sat", day: "14", month: "Nov" }. */
+export function dateParts(lang: Language, iso: string) {
+  const date = toDate(iso);
+  const locale = lang === 'de' ? 'de-CH' : 'en-GB';
+  if (Number.isNaN(date.getTime())) return { weekday: '', day: '?', month: '' };
+  return {
+    weekday: date.toLocaleDateString(locale, { weekday: 'short' }).replace('.', ''),
+    day: String(date.getDate()),
+    month: date.toLocaleDateString(locale, { month: 'short' }).replace('.', ''),
+  };
+}
+
+/** Whole days from today until the event (0 = today). */
+export function daysUntil(iso: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const day = toDate(iso.slice(0, 10));
+  day.setHours(0, 0, 0, 0);
+  return Math.round((day.getTime() - today.getTime()) / 86_400_000);
+}
+
+/** "Today", "Tomorrow" or "In 12 days". */
+export function countdownLabel(lang: Language, iso: string): string {
+  const days = daysUntil(iso);
+  if (days <= 0) return translate(lang, 'when.today');
+  if (days === 1) return translate(lang, 'when.tomorrow');
+  return translate(lang, 'when.inDays', { count: days });
 }

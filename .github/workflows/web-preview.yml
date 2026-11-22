@@ -4,7 +4,7 @@ name: Web preview
 # so it can be opened on any phone at https://juliafini889-droid.github.io/Sportsapp/
 on:
   push:
-    branches: [main, claude/project-thread-6vdji3]
+    branches: [main, claude/project-thread-6vdji3, claude/project-thread-c4nocv]
   workflow_dispatch:
 
 permissions:
