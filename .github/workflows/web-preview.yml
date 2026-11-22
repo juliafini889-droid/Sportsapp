@@ -1,0 +1,41 @@
+name: Web preview
+
+# Builds the web version of the app and publishes it to GitHub Pages (branch gh-pages),
+# so it can be opened on any phone at https://juliafini889-droid.github.io/Sportsapp/
+on:
+  push:
+    branches: [main, claude/project-thread-6vdji3]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: web-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx expo export --platform web
+        env:
+          EXPO_BASE_URL: /Sportsapp
+      # Single-page app: unknown paths fall back to the app.
+      - run: cp dist/index.html dist/404.html && touch dist/.nojekyll
+      - name: Publish to gh-pages
+        run: |
+          cd dist
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Web preview from ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
