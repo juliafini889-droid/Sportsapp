@@ -8,6 +8,8 @@ A mobile app that brings the sports bubble together, for athletes all over the w
 
 Clubs and organisers can publish their own events in the app (**Add your event**).
 
+Athletes create an account in the app. Events, sign-ups and results are stored online in Supabase (project "Race Base"), so organisers see who signed up and data is safe on every phone.
+
 The app is in English and German. It follows the phone's language and can be switched in the profile.
 
 ## Run it on your phone
@@ -25,7 +27,7 @@ The app is in English and German. It follows the phone's language and can be swi
 
 ## Ticketmaster events (optional)
 
-Without a key the feed shows the demo events and events published in the app.
+Without a key the feed shows the events from the database.
 To add real sport events from Ticketmaster:
 
 1. Get a free API key at <https://developer.ticketmaster.com>.
@@ -41,7 +43,6 @@ Ticketmaster events can't be joined inside the app yet. The app links to the tic
 
 ## What this first version does not do yet
 
-- **Accounts and sync**: all data is stored on the phone only (AsyncStorage). The next step is a backend (planned: Supabase) so sign-ups reach the organisers and published events are visible to everyone.
 - **Payments** for paid events.
 - **Partner sign-ups** with platforms like Ticketmaster.
 - **Computer version**: Expo can run the same app in the browser later (`npx expo start --web`).
@@ -50,12 +51,19 @@ Ticketmaster events can't be joined inside the app yet. The app links to the tic
 
 ```
 src/app/            screens (Expo Router, every file is a route)
+  login.tsx         sign in / create account
   (tabs)/           Discover, My Race, My Results, Profile
   event/[id].tsx    event details and sign-up
   event/new.tsx     publish an event
   competition/      add or edit a competition
 src/components/     shared UI
-src/lib/            data, translations, storage, Ticketmaster client
+src/lib/            data (Supabase), translations, Ticketmaster client
+
+## Database
+
+Supabase project **Race Base**. Tables used: `events`, `clubs`, `profiles`, `registrations`, `races` (My Results) and `saved_events` (external events kept in My Race). All tables use Row Level Security. Signing up for an event automatically adds it to `races`.
+
+The URL and publishable key are in `src/lib/supabase.ts` and can be overridden with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 ```
 
 Checks: `npx tsc --noEmit`

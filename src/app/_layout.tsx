@@ -9,7 +9,8 @@ function RootStack() {
   return (
     <Stack
       screenOptions={{
-        headerTintColor: colors.primaryDark,
+        headerTintColor: colors.primary,
+        headerTitleStyle: { color: colors.ink, fontWeight: '700' },
         headerStyle: { backgroundColor: colors.background },
         headerShadowVisible: false,
         contentStyle: { backgroundColor: colors.background },
@@ -17,7 +18,16 @@ function RootStack() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="event/[id]" options={{ title: '' }} />
+      <Stack.Screen
+        name="event/[id]"
+        options={{
+          title: '',
+          headerTransparent: true,
+          headerTintColor: '#FFFFFF',
+          headerStyle: { backgroundColor: 'transparent' },
+        }}
+      />
+      <Stack.Screen name="login" options={{ title: '', presentation: 'modal' }} />
       <Stack.Screen name="event/new" options={{ title: t('newEvent.title'), presentation: 'modal' }} />
       <Stack.Screen name="competition/edit" options={{ title: t('comp.edit'), presentation: 'modal' }} />
     </Stack>
@@ -27,7 +37,7 @@ function RootStack() {
 export default function RootLayout() {
   return (
     <AppProvider>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <RootStack />
     </AppProvider>
   );

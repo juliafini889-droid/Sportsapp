@@ -24,6 +24,20 @@ export default function EditCompetitionScreen() {
   const [place, setPlace] = useState(existing?.place ? String(existing.place) : '');
   const [notes, setNotes] = useState(existing?.notes ?? '');
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const run = async (action: () => Promise<void>) => {
+    setBusy(true);
+    setError('');
+    try {
+      await action();
+      router.back();
+    } catch (e) {
+      setError(e instanceof Error && e.message ? e.message : t('common.error'));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const save = () => {
     if (!title.trim() || !DATE_RE.test(date.trim())) {
@@ -31,18 +45,21 @@ export default function EditCompetitionScreen() {
       return;
     }
     const placeNumber = parseInt(place, 10);
-    upsertCompetition({
-      id: existing?.id,
-      title: title.trim(),
-      sport,
-      date: date.trim(),
-      location: location.trim(),
-      club: club.trim(),
-      result: result.trim(),
-      place: Number.isFinite(placeNumber) && placeNumber > 0 ? placeNumber : undefined,
-      notes: notes.trim(),
-    });
-    router.back();
+    run(() =>
+      upsertCompetition({
+        id: existing?.id,
+        registrationId: existing?.registrationId,
+        sportName: sport === existing?.sport ? existing?.sportName : undefined,
+        title: title.trim(),
+        sport,
+        date: date.trim(),
+        location: location.trim(),
+        club: club.trim(),
+        result: result.trim(),
+        place: Number.isFinite(placeNumber) && placeNumber > 0 ? placeNumber : undefined,
+        notes: notes.trim(),
+      }),
+    );
   };
 
   return (
@@ -75,16 +92,14 @@ export default function EditCompetitionScreen() {
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <View style={{ gap: spacing.sm }}>
-          <Button label={t('comp.form.save')} icon="check-circle" onPress={save} />
+          <Button label={t('comp.form.save')} icon="check-circle" onPress={save} disabled={busy} />
           {existing ? (
             <Button
               label={t('comp.form.delete')}
               icon="trash-can-outline"
               variant="danger"
-              onPress={() => {
-                deleteCompetition(existing.id);
-                router.back();
-              }}
+              disabled={busy}
+              onPress={() => run(() => deleteCompetition(existing.id))}
             />
           ) : null}
         </View>

@@ -10,12 +10,26 @@ const en = {
 
   'feed.title': 'Sport events worldwide',
   'feed.subtitle': 'Find your next race, match or tournament',
-  'feed.search': 'Search events, cities, organisers…',
+  'feed.search': 'Search events or cities',
   'feed.allSports': 'All sports',
   'feed.allCountries': 'All countries',
   'feed.empty': 'No events match your filters yet.',
   'feed.addEvent': 'Add your event',
-  'feed.loadError': 'Could not load Ticketmaster events. Showing app events only.',
+  'feed.loadError': 'Could not load events. Please check your internet connection.',
+  'feed.featured': 'Featured races',
+  'feed.soon': 'Coming up soon',
+  'feed.all': 'All events',
+  'feed.results': '{count} events',
+  'feed.organiseTitle': 'Running your own race?',
+  'feed.organiseText': 'Publish it here and athletes sign up in the app.',
+  'feed.clearFilters': 'Clear filters',
+  'when.today': 'Today',
+  'when.tomorrow': 'Tomorrow',
+  'when.inDays': 'In {count} days',
+  'when.daysToGo': 'days to go',
+  'myRace.next': 'Your next start',
+  'event.details': 'Details',
+  'event.about': 'About this event',
 
   'event.register': 'Sign up now',
   'event.registered': 'You are signed up 🎉',
@@ -70,7 +84,7 @@ const en = {
   'newEvent.city': 'City',
   'newEvent.country': 'Country code (e.g. CH, DE, US)',
   'newEvent.organizer': 'Organiser / club',
-  'newEvent.price': 'Price (optional)',
+  'newEvent.price': 'Price in CHF (0 = free)',
   'newEvent.description': 'Description',
   'newEvent.publish': 'Publish event',
   'newEvent.invalid': 'Please fill in name, date, city and a 2-letter country code.',
@@ -82,9 +96,29 @@ const en = {
   'profile.language': 'Language',
   'profile.save': 'Save profile',
   'profile.saved': 'Saved!',
-  'profile.localNote': 'For now your data is stored on this phone only. Accounts and sync come next.',
+  'profile.localNote': 'Your sign-ups and results are saved in your account, so they are safe on every phone.',
 
   'common.cancel': 'Cancel',
+  'auth.title': 'Welcome to Sportsapp',
+  'auth.subtitle': 'Sign in to sign up for events and track your results.',
+  'auth.signIn': 'Sign in',
+  'auth.signUp': 'Create account',
+  'auth.toSignUp': 'New here? Create an account',
+  'auth.toSignIn': 'Already have an account? Sign in',
+  'auth.name': 'Your name',
+  'auth.email': 'Email',
+  'auth.password': 'Password (at least 8 characters)',
+  'auth.required': 'Please sign in first.',
+  'auth.signOut': 'Sign out',
+  'auth.signedInAs': 'Signed in as {email}',
+  'register.firstName': 'First name',
+  'register.lastName': 'Last name',
+  'register.category': 'Category',
+  'register.loginFirst': 'Sign in to sign up',
+  'comp.upcoming': 'Upcoming',
+  'comp.addResult': 'Add your result',
+  'newEvent.categories': 'Categories, separated by commas (e.g. 5 km, 10 km)',
+  'common.error': 'Something went wrong. Please try again.',
 
   'sport.running': 'Running',
   'sport.cycling': 'Cycling',
@@ -107,12 +141,26 @@ const de: Record<TranslationKey, string> = {
 
   'feed.title': 'Sportevents weltweit',
   'feed.subtitle': 'Finde dein nächstes Rennen, Spiel oder Turnier',
-  'feed.search': 'Events, Städte, Veranstalter suchen…',
+  'feed.search': 'Events oder Orte suchen',
   'feed.allSports': 'Alle Sportarten',
   'feed.allCountries': 'Alle Länder',
   'feed.empty': 'Keine Events passen zu deinen Filtern.',
   'feed.addEvent': 'Event eintragen',
-  'feed.loadError': 'Ticketmaster-Events konnten nicht geladen werden. Es werden nur App-Events gezeigt.',
+  'feed.loadError': 'Events konnten nicht geladen werden. Bitte prüfe deine Internetverbindung.',
+  'feed.featured': 'Top Rennen',
+  'feed.soon': 'Bald am Start',
+  'feed.all': 'Alle Events',
+  'feed.results': '{count} Events',
+  'feed.organiseTitle': 'Du organisierst ein Rennen?',
+  'feed.organiseText': 'Trag es hier ein und Sportler melden sich direkt in der App an.',
+  'feed.clearFilters': 'Filter zurücksetzen',
+  'when.today': 'Heute',
+  'when.tomorrow': 'Morgen',
+  'when.inDays': 'In {count} Tagen',
+  'when.daysToGo': 'Tage bis zum Start',
+  'myRace.next': 'Dein nächster Start',
+  'event.details': 'Details',
+  'event.about': 'Über dieses Event',
 
   'event.register': 'Jetzt anmelden',
   'event.registered': 'Du bist angemeldet 🎉',
@@ -168,7 +216,7 @@ const de: Record<TranslationKey, string> = {
   'newEvent.city': 'Stadt',
   'newEvent.country': 'Ländercode (z.B. CH, DE, US)',
   'newEvent.organizer': 'Veranstalter / Verein',
-  'newEvent.price': 'Preis (optional)',
+  'newEvent.price': 'Preis in CHF (0 = gratis)',
   'newEvent.description': 'Beschreibung',
   'newEvent.publish': 'Event veröffentlichen',
   'newEvent.invalid': 'Bitte Name, Datum, Stadt und einen 2-stelligen Ländercode ausfüllen.',
@@ -180,10 +228,29 @@ const de: Record<TranslationKey, string> = {
   'profile.language': 'Sprache',
   'profile.save': 'Profil speichern',
   'profile.saved': 'Gespeichert!',
-  'profile.localNote':
-    'Im Moment sind deine Daten nur auf diesem Handy gespeichert. Konten und Synchronisierung kommen als Nächstes.',
+  'profile.localNote': 'Deine Anmeldungen und Resultate sind in deinem Konto gespeichert, also auf jedem Handy sicher.',
 
   'common.cancel': 'Abbrechen',
+  'auth.title': 'Willkommen bei Sportsapp',
+  'auth.subtitle': 'Melde dich an, um dich für Events anzumelden und deine Resultate zu tracken.',
+  'auth.signIn': 'Einloggen',
+  'auth.signUp': 'Konto erstellen',
+  'auth.toSignUp': 'Neu hier? Konto erstellen',
+  'auth.toSignIn': 'Schon ein Konto? Einloggen',
+  'auth.name': 'Dein Name',
+  'auth.email': 'E-Mail',
+  'auth.password': 'Passwort (mindestens 8 Zeichen)',
+  'auth.required': 'Bitte zuerst einloggen.',
+  'auth.signOut': 'Ausloggen',
+  'auth.signedInAs': 'Eingeloggt als {email}',
+  'register.firstName': 'Vorname',
+  'register.lastName': 'Nachname',
+  'register.category': 'Kategorie',
+  'register.loginFirst': 'Zum Anmelden einloggen',
+  'comp.upcoming': 'Kommend',
+  'comp.addResult': 'Resultat eintragen',
+  'newEvent.categories': 'Kategorien, mit Komma getrennt (z.B. 5 km, 10 km)',
+  'common.error': 'Da ist etwas schiefgelaufen. Bitte versuch es nochmal.',
 
   'sport.running': 'Laufen',
   'sport.cycling': 'Radsport',
@@ -212,11 +279,7 @@ export function deviceCountry(): string | undefined {
   return getLocales()[0]?.regionCode ?? undefined;
 }
 
-export function translate(
-  lang: Language,
-  key: TranslationKey,
-  params?: Record<string, string | number>,
-): string {
+export function translate(lang: Language, key: TranslationKey, params?: Record<string, string | number>): string {
   let text = dictionaries[lang][key] ?? en[key];
   if (params) {
     for (const [name, value] of Object.entries(params)) {
@@ -226,7 +289,8 @@ export function translate(
   return text;
 }
 
-export function sportLabel(lang: Language, sport: Sport): string {
+export function sportLabel(lang: Language, sport: Sport, sportName?: string): string {
+  if (sport === 'other' && sportName) return sportName;
   return translate(lang, `sport.${sport}` as TranslationKey);
 }
 
@@ -249,4 +313,37 @@ export function formatDate(lang: Language, iso: string): string {
     month: 'short',
     year: 'numeric',
   });
+}
+
+function toDate(iso: string): Date {
+  return new Date(iso.length === 10 ? `${iso}T12:00:00` : iso);
+}
+
+/** Parts for a ticket-style date block, e.g. { weekday: "Sat", day: "14", month: "Nov" }. */
+export function dateParts(lang: Language, iso: string) {
+  const date = toDate(iso);
+  const locale = lang === 'de' ? 'de-CH' : 'en-GB';
+  if (Number.isNaN(date.getTime())) return { weekday: '', day: '?', month: '' };
+  return {
+    weekday: date.toLocaleDateString(locale, { weekday: 'short' }).replace('.', ''),
+    day: String(date.getDate()),
+    month: date.toLocaleDateString(locale, { month: 'short' }).replace('.', ''),
+  };
+}
+
+/** Whole days from today until the event (0 = today). */
+export function daysUntil(iso: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const day = toDate(iso.slice(0, 10));
+  day.setHours(0, 0, 0, 0);
+  return Math.round((day.getTime() - today.getTime()) / 86_400_000);
+}
+
+/** "Today", "Tomorrow" or "In 12 days". */
+export function countdownLabel(lang: Language, iso: string): string {
+  const days = daysUntil(iso);
+  if (days <= 0) return translate(lang, 'when.today');
+  if (days === 1) return translate(lang, 'when.tomorrow');
+  return translate(lang, 'when.inDays', { count: days });
 }

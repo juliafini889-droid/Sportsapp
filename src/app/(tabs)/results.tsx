@@ -1,16 +1,20 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AuthForm } from '../../components/AuthForm';
+import { Enter, PressableScale } from '../../components/motion';
 import { Button, EmptyState, Icon, ScreenTitle, SPORT_ICONS } from '../../components/ui';
-import { sortByDate } from '../../lib/events';
+import { isUpcoming, sortByDate } from '../../lib/events';
 import { formatDate, sportLabel } from '../../lib/i18n';
 import { useApp } from '../../lib/store';
-import { colors, radius, spacing } from '../../lib/theme';
+import { colors, radius, spacing, type } from '../../lib/theme';
+
+const MEDAL = [colors.gold, colors.silver, colors.bronze];
 
 export default function ResultsScreen() {
-  const { competitions, language, t } = useApp();
+  const { user, competitions, language, t } = useApp();
 
   const list = useMemo(() => sortByDate(competitions).reverse(), [competitions]);
 
@@ -23,18 +27,30 @@ export default function ResultsScreen() {
     };
   }, [competitions]);
 
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.screen} edges={['top']}>
+        <ScrollView keyboardShouldPersistTaps="handled">
+          <AuthForm />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   const header = (
-    <View>
+    <Enter>
       <ScreenTitle title={t('comp.title')} subtitle={t('comp.subtitle')} />
       <View style={styles.stats}>
         <Stat label={t('comp.stats.count')} value={String(stats.count)} />
+        <View style={styles.statDivider} />
         <Stat label={t('comp.stats.podiums')} value={String(stats.podiums)} />
-        <Stat label={t('comp.stats.best')} value={stats.best ? `#${stats.best}` : '–'} />
+        <View style={styles.statDivider} />
+        <Stat label={t('comp.stats.best')} value={stats.best ? `#${stats.best}` : '–'} highlight={!!stats.best && stats.best <= 3} />
       </View>
       <View style={styles.addWrap}>
         <Button label={t('comp.add')} icon="plus" onPress={() => router.push('/competition/edit')} />
       </View>
-    </View>
+    </Enter>
   );
 
   return (
@@ -46,39 +62,48 @@ export default function ResultsScreen() {
         ListEmptyComponent={<EmptyState icon="podium" text={t('comp.empty')} />}
         contentContainerStyle={{ paddingBottom: spacing.xl }}
         renderItem={({ item }) => (
-          <Pressable
+          <PressableScale
             onPress={() => router.push({ pathname: '/competition/edit', params: { id: item.id } })}
-            style={({ pressed }) => [styles.row, pressed && { opacity: 0.85 }]}
+            accessibilityRole="button"
+            accessibilityLabel={[item.title, formatDate(language, item.date), item.result, item.place ? `#${item.place}` : '']
+              .filter(Boolean)
+              .join(', ')}
+            style={styles.row}
           >
             <View style={styles.rowIcon}>
-              <Icon name={SPORT_ICONS[item.sport]} size={24} color={colors.primary} />
+              <Icon name={SPORT_ICONS[item.sport]} size={24} color={colors.electric} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.rowTitle} numberOfLines={1}>
                 {item.title}
               </Text>
               <Text style={styles.rowMeta} numberOfLines={1}>
-                {formatDate(language, item.date)} · {sportLabel(language, item.sport)}
+                {formatDate(language, item.date)} · {sportLabel(language, item.sport, item.sportName)}
                 {item.location ? ` · ${item.location}` : ''}
               </Text>
-              {item.result ? <Text style={styles.rowResult}>{item.result}</Text> : null}
+              {item.result ? (
+                <Text style={styles.rowResult}>{item.result}</Text>
+              ) : (
+                <Text style={styles.rowHint}>{isUpcoming(item.date) ? t('comp.upcoming') : t('comp.addResult')}</Text>
+              )}
             </View>
             {item.place ? (
-              <View style={[styles.place, item.place <= 3 && styles.podium]}>
-                <Text style={[styles.placeText, item.place <= 3 && { color: '#fff' }]}>#{item.place}</Text>
+              <View style={[styles.place, item.place <= 3 && { backgroundColor: MEDAL[item.place - 1] }]}>
+                {item.place <= 3 ? <Icon name="medal" size={14} color={colors.onPrimary} /> : null}
+                <Text style={[styles.placeText, item.place <= 3 && { color: colors.onPrimary }]}>#{item.place}</Text>
               </View>
             ) : null}
-          </Pressable>
+          </PressableScale>
         )}
       />
     </SafeAreaView>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <View style={styles.stat}>
-      <Text style={styles.statValue}>{value}</Text>
+    <View style={styles.stat} accessible accessibilityLabel={`${label}: ${value}`}>
+      <Text style={[styles.statValue, highlight && { color: colors.gold }]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
@@ -86,50 +111,57 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  stats: { flexDirection: 'row', gap: spacing.sm, marginHorizontal: spacing.lg },
-  stat: {
-    flex: 1,
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
+  stats: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
   },
-  statValue: { fontSize: 24, fontWeight: '800', color: colors.primaryDark },
-  statLabel: { fontSize: 12, color: colors.muted, marginTop: 2, textAlign: 'center' },
+  statDivider: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch', backgroundColor: colors.separator },
+  stat: { flex: 1, alignItems: 'center', paddingHorizontal: spacing.xs },
+  statValue: {
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '700',
+    color: colors.ink,
+    fontVariant: ['tabular-nums'],
+  },
+  statLabel: { ...type.caption, color: colors.muted, marginTop: 2, textAlign: 'center' },
   addWrap: { margin: spacing.lg },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     backgroundColor: colors.card,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: radius.lg,
     padding: spacing.md,
     marginHorizontal: spacing.lg,
     marginBottom: spacing.sm,
   },
   rowIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.primarySoft,
+    width: 48,
+    height: 48,
+    borderRadius: radius.md,
+    backgroundColor: colors.electricSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rowTitle: { fontSize: 16, fontWeight: '700', color: colors.ink },
-  rowMeta: { fontSize: 13, color: colors.muted, marginTop: 2 },
-  rowResult: { fontSize: 14, color: colors.ink, marginTop: 4, fontWeight: '600' },
+  rowTitle: { ...type.headline, color: colors.ink },
+  rowMeta: { ...type.footnote, color: colors.muted, marginTop: 2 },
+  rowHint: { ...type.footnote, color: colors.primaryDark, marginTop: 4, fontWeight: '700' },
+  rowResult: { ...type.subhead, color: colors.ink, marginTop: 4, fontWeight: '700', fontVariant: ['tabular-nums'] },
   place: {
-    minWidth: 44,
-    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    minWidth: 48,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: radius.pill,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
+    backgroundColor: colors.raised,
   },
-  podium: { backgroundColor: colors.primary },
-  placeText: { fontWeight: '800', color: colors.primaryDark },
+  placeText: { fontWeight: '700', color: colors.ink, fontVariant: ['tabular-nums'] },
 });
